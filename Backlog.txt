@@ -1,3 +1,5 @@
 13 - 08 - 2025
 Seting up project
-Adding hands into project
+Adding hands into project.
+Adding Ik into the limbs, also creating and giving player first weapon.
+Creating attachments for the FN Scar.
