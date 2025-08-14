@@ -3,10 +3,20 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance;
+
+    [HideInInspector] public bool isAlive;
+
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float sprintSpeed = 9f;
     public float speedChangeRate = 10f;
+
+    public bool IsRunning => _isRunning;
+
+    private bool _isRunning = false;
+    [HideInInspector] public float mouseX;
+    [HideInInspector] public float mouseY;
 
     [Header("Jump & Gravity")]
     public float jumpHeight = 1.2f;
@@ -24,16 +34,30 @@ public class PlayerController : MonoBehaviour
     public float topClamp = 80f;
     public float bottomClamp = -80f;
 
-    private CharacterController controller;
-    private float verticalVelocity;
-    private float currentSpeed;
-    private float pitch;
-    private bool grounded;
-    private float jumpCooldownTimer;
+    private CharacterController _controller;
+    private float _verticalVelocity;
+    private float _currentSpeed;
+    private float _pitch;
+    public bool grounded;
+    private float _jumpCooldownTimer;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance);
+        }
+        else
+        {
+            Instance = this;
+        }
+
+        isAlive = true;
+    }
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
+        _controller = GetComponent<CharacterController>();
 
         if (playerCamera == null)
             Debug.LogError("Assign a camera to FirstPersonController.");
@@ -44,10 +68,13 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        GroundCheck();
-        Look();
-        Move();
-        JumpAndGravity();
+        if (isAlive)
+        {
+            GroundCheck();
+            Look();
+            Move();
+            JumpAndGravity();
+        }
     }
 
     private void GroundCheck()
@@ -58,22 +85,22 @@ public class PlayerController : MonoBehaviour
 
     private void Look()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
         // Rotate player horizontally (yaw)
         transform.Rotate(Vector3.up * mouseX);
 
         // Rotate camera vertically (pitch)
-        pitch -= mouseY;
-        pitch = Mathf.Clamp(pitch, bottomClamp, topClamp);
-        playerCamera.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        _pitch -= mouseY;
+        _pitch = Mathf.Clamp(_pitch, bottomClamp, topClamp);
+        playerCamera.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
     }
 
     private void Move()
     {
-        bool sprinting = Input.GetKey(KeyCode.LeftShift);
-        float targetSpeed = sprinting ? sprintSpeed : moveSpeed;
+        _isRunning = Input.GetKey(KeyCode.LeftShift);
+        float targetSpeed = _isRunning ? sprintSpeed : moveSpeed;
 
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector3 move = transform.right * input.x + transform.forward * input.y;
@@ -81,38 +108,38 @@ public class PlayerController : MonoBehaviour
         // Smooth speed
         if (move.magnitude > 0)
         {
-            currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
+            _currentSpeed = Mathf.Lerp(_currentSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
         }
         else
         {
-            currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.deltaTime * speedChangeRate);
+            _currentSpeed = Mathf.Lerp(_currentSpeed, 0, Time.deltaTime * speedChangeRate);
         }
 
-        controller.Move(move.normalized * currentSpeed * Time.deltaTime + Vector3.up * verticalVelocity * Time.deltaTime);
+        _controller.Move(move.normalized * _currentSpeed * Time.deltaTime + Vector3.up * _verticalVelocity * Time.deltaTime);
     }
 
     private void JumpAndGravity()
     {
         if (grounded)
         {
-            if (verticalVelocity < 0)
-                verticalVelocity = -2f;
+            if (_verticalVelocity < 0)
+                _verticalVelocity = -2f;
 
-            if (jumpCooldownTimer > 0)
-                jumpCooldownTimer -= Time.deltaTime;
+            if (_jumpCooldownTimer > 0)
+                _jumpCooldownTimer -= Time.deltaTime;
 
-            if (Input.GetKeyDown(KeyCode.Space) && jumpCooldownTimer <= 0)
+            if (Input.GetKeyDown(KeyCode.Space) && _jumpCooldownTimer <= 0)
             {
-                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-                jumpCooldownTimer = jumpCooldown;
+                _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                _jumpCooldownTimer = jumpCooldown;
             }
         }
         else
         {
-            jumpCooldownTimer = jumpCooldown;
+            _jumpCooldownTimer = jumpCooldown;
         }
 
-        verticalVelocity += gravity * Time.deltaTime;
+        _verticalVelocity += gravity * Time.deltaTime;
     }
 
     private void OnDrawGizmosSelected()
