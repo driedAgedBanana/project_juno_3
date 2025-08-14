@@ -34,6 +34,13 @@ public class PlayerController : MonoBehaviour
     public float topClamp = 80f;
     public float bottomClamp = -80f;
 
+    [Header("Leaning Settings")]
+    public Transform leanPivot;
+    public float leanAngle = 15f;   // Max tilt angle in degrees
+    public float leanSpeed = 8f;    // How fast to lean in/out
+
+    private float currentLean = 0f;
+
     private CharacterController _controller;
     private float _verticalVelocity;
     private float _currentSpeed;
@@ -74,6 +81,7 @@ public class PlayerController : MonoBehaviour
             Look();
             Move();
             JumpAndGravity();
+            HandleLeaning();
         }
     }
 
@@ -147,5 +155,27 @@ public class PlayerController : MonoBehaviour
         Color color = grounded ? new Color(0, 1, 0, 0.35f) : new Color(1, 0, 0, 0.35f);
         Gizmos.color = color;
         Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y + groundedOffset, transform.position.z), groundedRadius);
+    }
+
+    private void HandleLeaning()
+    {
+        float noLeanReset = 0;
+        float targetLean = 0f;
+
+        if(!grounded)
+        {
+            currentLean = Mathf.Lerp(targetLean, noLeanReset, Time.deltaTime * leanSpeed);
+        }
+
+        // Continuous input instead of GetKeyDown
+        if (Input.GetKey(KeyCode.Q))
+            targetLean = leanAngle;
+        else if (Input.GetKey(KeyCode.E))
+            targetLean = -leanAngle;
+
+        currentLean = Mathf.Lerp(currentLean, targetLean, Time.deltaTime * leanSpeed);
+
+        if (leanPivot != null)
+            leanPivot.localRotation = Quaternion.Euler(0f, 0f, currentLean);
     }
 }

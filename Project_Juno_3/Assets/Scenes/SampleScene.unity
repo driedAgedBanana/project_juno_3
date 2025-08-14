@@ -270,6 +270,11 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+--- !u!4 &613844890 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7353120590902133290, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
+  m_PrefabInstance: {fileID: 8995721647295805697}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &709516583 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7388483816813055717, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
@@ -521,6 +526,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
+      propertyPath: leanAngle
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
+      propertyPath: leanPivot
+      value: 
+      objectReference: {fileID: 613844890}
     - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
       propertyPath: groundedOffset
       value: -1
