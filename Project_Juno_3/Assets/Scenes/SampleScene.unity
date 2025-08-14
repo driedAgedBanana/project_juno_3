@@ -535,12 +535,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 613844890}
     - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
+      propertyPath: standHeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
+      propertyPath: crouchHeight
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
       propertyPath: groundedOffset
       value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
       propertyPath: groundedRadius
       value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 4145852366018000938, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
+      propertyPath: crouchCameraOffset
+      value: -0.55
       objectReference: {fileID: 0}
     - target: {fileID: 4231090594275659362, guid: a3dc0856793d54e44860fd5968535e78, type: 3}
       propertyPath: aimSmoothness

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem.iOS.LowLevel;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -41,7 +42,17 @@ public class PlayerController : MonoBehaviour
 
     private float currentLean = 0f;
 
-    private CharacterController _controller;
+    [Header("Crouching Settings")]
+    public float crouchSpeed = 1.8f;
+    [HideInInspector] public bool isCrouching = false;
+
+    private Vector3 _cameraStandPos;
+    public float crouchHeight = 0.5f;
+    public float standHeight = 1f;
+    public float crouchCameraOffset = -0.5f;
+    public float crouchTransitionSpeed = 8f;
+
+    private CharacterController _playerController;
     private float _verticalVelocity;
     private float _currentSpeed;
     private float _pitch;
@@ -64,10 +75,12 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        _controller = GetComponent<CharacterController>();
+        _playerController = GetComponent<CharacterController>();
 
         if (playerCamera == null)
             Debug.LogError("Assign a camera to FirstPersonController.");
+
+        _cameraStandPos = playerCamera.localPosition;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -82,6 +95,7 @@ public class PlayerController : MonoBehaviour
             Move();
             JumpAndGravity();
             HandleLeaning();
+            HandleCrouching();
         }
     }
 
@@ -110,20 +124,22 @@ public class PlayerController : MonoBehaviour
         _isRunning = Input.GetKey(KeyCode.LeftShift);
         float targetSpeed = _isRunning ? sprintSpeed : moveSpeed;
 
+        float targetSpeedFinal = isCrouching ? crouchSpeed : targetSpeed;
+
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector3 move = transform.right * input.x + transform.forward * input.y;
 
         // Smooth speed
         if (move.magnitude > 0)
         {
-            _currentSpeed = Mathf.Lerp(_currentSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
+            _currentSpeed = Mathf.Lerp(_currentSpeed, targetSpeedFinal, Time.deltaTime * speedChangeRate);
         }
         else
         {
             _currentSpeed = Mathf.Lerp(_currentSpeed, 0, Time.deltaTime * speedChangeRate);
         }
 
-        _controller.Move(move.normalized * _currentSpeed * Time.deltaTime + Vector3.up * _verticalVelocity * Time.deltaTime);
+        _playerController.Move(move.normalized * _currentSpeed * Time.deltaTime + Vector3.up * _verticalVelocity * Time.deltaTime);
     }
 
     private void JumpAndGravity()
@@ -162,7 +178,7 @@ public class PlayerController : MonoBehaviour
         float noLeanReset = 0;
         float targetLean = 0f;
 
-        if(!grounded)
+        if (!grounded)
         {
             currentLean = Mathf.Lerp(targetLean, noLeanReset, Time.deltaTime * leanSpeed);
         }
@@ -177,5 +193,22 @@ public class PlayerController : MonoBehaviour
 
         if (leanPivot != null)
             leanPivot.localRotation = Quaternion.Euler(0f, 0f, currentLean);
+    }
+
+    private void HandleCrouching()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            isCrouching = !isCrouching;
+
+            float bottomY = standHeight / 2f;
+            _playerController.height = isCrouching ? crouchHeight : standHeight;
+            _playerController.center = new Vector3(0, bottomY / 2, 0);
+        }
+
+        // Smooth cam position
+        Vector3 targetCamPos = isCrouching ? _cameraStandPos + Vector3.down * (standHeight - crouchHeight) : _cameraStandPos;
+
+        playerCamera.localPosition = Vector3.Lerp(playerCamera.localPosition, targetCamPos, Time.deltaTime * 8f);
     }
 }
