@@ -24,6 +24,9 @@ public class WeaponBase : MonoBehaviour
 
     private bool _isZooming;
 
+    public float damage = 100f;
+    public float range = 100f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -43,6 +46,11 @@ public class WeaponBase : MonoBehaviour
         }
 
         Aiming(); // Always run this for smooth transition
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Shoot();
+        }
     }
 
     public void Aiming()
@@ -60,5 +68,14 @@ public class WeaponBase : MonoBehaviour
         // Camera POV transistion between aiming or not
         float currentPOV = mainCam.fieldOfView;
         mainCam.fieldOfView = Mathf.SmoothDamp(currentPOV, targetPOV, ref smoothness, 0.1f);
+    }
+
+    public void Shoot()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, mainCam.transform.forward, out hit, range))
+        {
+            Debug.Log(hit.transform.name);
+        }
     }
 }

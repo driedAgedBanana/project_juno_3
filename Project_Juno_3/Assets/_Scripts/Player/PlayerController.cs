@@ -201,14 +201,16 @@ public class PlayerController : MonoBehaviour
         {
             isCrouching = !isCrouching;
 
-            float bottomY = standHeight / 2f;
+            float bottomY = crouchHeight;
             _playerController.height = isCrouching ? crouchHeight : standHeight;
-            _playerController.center = new Vector3(0, bottomY / 2, 0);
+            _playerController.center = new Vector3(0, bottomY, 0);
         }
 
         // Smooth cam position
-        Vector3 targetCamPos = isCrouching ? _cameraStandPos + Vector3.down * (standHeight - crouchHeight) : _cameraStandPos;
+        Vector3 targetCamPos = _cameraStandPos;
+        if (isCrouching)
+            targetCamPos += new Vector3(0, crouchCameraOffset, 0);
 
-        playerCamera.localPosition = Vector3.Lerp(playerCamera.localPosition, targetCamPos, Time.deltaTime * 8f);
+        playerCamera.localPosition = Vector3.Lerp(playerCamera.localPosition, targetCamPos, Time.deltaTime * crouchTransitionSpeed);
     }
 }
